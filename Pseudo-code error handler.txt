@@ -1,3 +1,55 @@
 Pseudo-code error handler
 
 Voeg libraries toe
+
+Definieer de variabelen Taal, Bericht_IN, Bericht_OUT,  SEV_code, Subsysteem, Error_code, Tekst, Veldjes, TXT_bestand, Regel, 
+			Regel_Nnummer, Aantal_regels, Err_code, Err_text...
+Maak de linked list aan
+
+Zet Regel_Nummer gelijk aan nul
+Vraag de gebruiker welke taal hij wil (NL, FR, EN)
+Zet de variabele Taal gelijk aan die input
+
+Functie voor het inlezen van berichten
+	Wacht totdat er een bericht is op de mqtt broker
+	Als er een bericht is dan:
+		Zet de variabele Bericht_IN gelijk aan dat bericht
+		Bekijk het aantal veldjes tussen de <> gescheiden door een ;
+		Zet de variabele Veldjes gelijk aan dat getal
+		Als Veldjes gelijk is aan 3 dan:
+			Verdeel Bericht_IN in 3 stukken gescheiden door een ;
+			Zet het eerste stuk gelijk aan de variabele SEV_code
+			Zet het tweede stuk gelijk aan de variabele Subsysteem
+			Zet het derde stuk gelijk aan Error_code
+	
+		Anders als Veldjes gelijk is aan 4 dan:
+			Verdeel Bericht_IN in 4 stukken gescheiden door een ;
+			Zet het eerste stuk gelijk aan de variabele SEV_code
+			Zet het tweede stuk gelijk aan de variabele Subsysteem
+			Zet het derde stuk gelijk aan Error_code
+			Zet het vierde stuk gelijk aan Tekst
+Einde functie Inlezen_berichten
+
+Functie Bestand_lezen
+	Zet TXT_bestand gelijk aan "Error_msg_", Taal ,".txt"
+	Lees het aantal regels van TXT_bestand
+	Zet Aantal_regels gelijk aan dat aantal
+
+	Zolang dat Regel_nummer kleiner is dan Aantal_regels
+		Zet Regel gelijk aan de regel in TXT_bestand die overeenkomt met Regel_nummer
+		Als het eerste character van Regel niet gelijk is aan "#" dan:
+			Verdeel Regel in 2 delen gescheiden door een tab
+			Zet het eerste deel gelijk aan Err_code
+			Zet het tweede deel gelijk aan Err_text
+			Zet Err_code en Err_text in de linked list
+		Doe Regel_nummer + 1
+Einde functie Bestand_lezen
+		
+Functie Zoek_list
+	Voor elke lijn in de linked list
+		Zet Err_code gelijk aan Err_code die in de linked list staat
+		Zet Err_text gelijk aan Err_text die in de linked list staat
+		Als Error_code gelijk is aan Err_code
+			Zet Tekst gelijk aan Err_text
+Einde functie Zoek_list
+
