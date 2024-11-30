@@ -1,0 +1,934 @@
+[
+    {
+        "id": "112da8e87d63fd61",
+        "type": "tab",
+        "label": "HELP ME",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "3ef563e6407d0de9",
+        "type": "mqtt in",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "topic": "send",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "d12f4ea78aca88e5",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 70,
+        "y": 180,
+        "wires": [
+            [
+                "0ee2936bdc67ef6d"
+            ]
+        ]
+    },
+    {
+        "id": "f584a21ac0dfefb7",
+        "type": "csv",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "sep": ";",
+        "hdrin": "",
+        "hdrout": "none",
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "DateTime, Severity, Name, ErrorCode, Error",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 350,
+        "y": 180,
+        "wires": [
+            [
+                "718e210ceb09f1d5"
+            ]
+        ]
+    },
+    {
+        "id": "0ee2936bdc67ef6d",
+        "type": "function",
+        "z": "112da8e87d63fd61",
+        "name": "function 39",
+        "func": "msg.payload = msg.payload.replace(/[<>]/g, \"\");\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 210,
+        "y": 180,
+        "wires": [
+            [
+                "f584a21ac0dfefb7",
+                "42169597a9249939"
+            ]
+        ]
+    },
+    {
+        "id": "bed6a41001ff8bf3",
+        "type": "switch",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "property": "SEV",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "2",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "3",
+                "vt": "num"
+            },
+            {
+                "t": "eq",
+                "v": "4",
+                "vt": "num"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 4,
+        "x": 490,
+        "y": 460,
+        "wires": [
+            [
+                "0c292c9c0669674f",
+                "96f7c88ed05795d4"
+            ],
+            [
+                "93b41d8b37fd2ce5",
+                "786fbbd0b15562ee"
+            ],
+            [
+                "30dd6f6b5a5ab20c"
+            ],
+            [
+                "280c8812674f6feb"
+            ]
+        ]
+    },
+    {
+        "id": "e191cb588bf454a4",
+        "type": "function",
+        "z": "112da8e87d63fd61",
+        "name": "function 40",
+        "func": "// Store FLOW Var into Node Var\nvar DateTime = flow.get(\"DateTime\");\nvar Severity = flow.get(\"SEV\");\nvar Name = flow.get(\"Name\");\nvar Error_Code = flow.get(\"Error_Code\");\nvar Error_Tekst = flow.get(\"Error\");\n\n// Format INSERT SQL Statement\nvar INSERT_MSG = \"INSERT INTO Error_messages \\\n                (DateTime, Severity, Name, Error_Code, Error_Tekst ) \\\n                VALUES \\\n                ('\" + DateTime + \"', '\" + Severity + \"', '\" + Name + \"', '\" + Error_Code + \"', '\" + Error_Tekst + \"');\";\n\n// Node SQL expects the SQL statement in msg.topic\nmsg.topic = INSERT_MSG;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 100,
+        "wires": [
+            [
+                "41cad157744d3a6e",
+                "230bfeb133200587"
+            ]
+        ]
+    },
+    {
+        "id": "b1a6234dd65ffc25",
+        "type": "ui_button",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "group": "ede92d11ba7fa270",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Clear all tables",
+        "tooltip": "",
+        "color": "black",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 280,
+        "y": 600,
+        "wires": [
+            [
+                "9176da379bb673c4"
+            ]
+        ]
+    },
+    {
+        "id": "9176da379bb673c4",
+        "type": "function",
+        "z": "112da8e87d63fd61",
+        "name": "function 41",
+        "func": "flow.set('tableData', []); // Clear the context\nmsg.payload = [];          // Clear the table\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 600,
+        "wires": [
+            [
+                "0c292c9c0669674f",
+                "93b41d8b37fd2ce5",
+                "30dd6f6b5a5ab20c",
+                "280c8812674f6feb"
+            ]
+        ]
+    },
+    {
+        "id": "718e210ceb09f1d5",
+        "type": "change",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "SEV",
+                "pt": "flow",
+                "to": "payload.Severity",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "DateTime",
+                "pt": "flow",
+                "to": "payload.DateTime",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "Name",
+                "pt": "flow",
+                "to": "payload.Name",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "Error_Code",
+                "pt": "flow",
+                "to": "payload.ErrorCode",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "Error",
+                "pt": "flow",
+                "to": "payload.Error",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 520,
+        "y": 180,
+        "wires": [
+            [
+                "e191cb588bf454a4",
+                "c828a5010dfb07df"
+            ]
+        ]
+    },
+    {
+        "id": "41cad157744d3a6e",
+        "type": "mysql",
+        "z": "112da8e87d63fd61",
+        "mydb": "c3887b6b2ed387af",
+        "name": "",
+        "x": 920,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c828a5010dfb07df",
+        "type": "function",
+        "z": "112da8e87d63fd61",
+        "name": "function 43",
+        "func": "// Store flow variable into Node variable\nvar Severity = flow.get(\"SEV\"); // Get the desired severity level from flow context\n\n// Format SELECT SQL Statement to get up to 10 messages based on severity\nvar SELECT_MSG = \"SELECT * FROM Error_messages \\\n                  WHERE Severity = '\" + Severity + \"' \\\n                  ORDER BY DateTime DESC \\\n                  LIMIT 5;\";\n\n// Node-SQL expects the SQL statement in msg.topic\nmsg.topic = SELECT_MSG;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 180,
+        "wires": [
+            [
+                "16de6f3b2c023c8c"
+            ]
+        ]
+    },
+    {
+        "id": "16de6f3b2c023c8c",
+        "type": "mysql",
+        "z": "112da8e87d63fd61",
+        "mydb": "c3887b6b2ed387af",
+        "name": "",
+        "x": 920,
+        "y": 180,
+        "wires": [
+            [
+                "25e9e7ba60f98ff3"
+            ]
+        ]
+    },
+    {
+        "id": "0c292c9c0669674f",
+        "type": "ui_table",
+        "z": "112da8e87d63fd61",
+        "group": "2f74036aecb3f8b2",
+        "name": "",
+        "order": 1,
+        "width": 12,
+        "height": 7,
+        "columns": [
+            {
+                "field": "DateTime",
+                "title": "DateTime",
+                "width": "180",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Severity",
+                "title": "SEV",
+                "width": "80",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Name",
+                "title": "Name",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_code",
+                "title": "ErrorCode",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_Tekst",
+                "title": "Error",
+                "width": "300",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 890,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "93b41d8b37fd2ce5",
+        "type": "ui_table",
+        "z": "112da8e87d63fd61",
+        "group": "f5b93647af854b1b",
+        "name": "",
+        "order": 1,
+        "width": 12,
+        "height": 7,
+        "columns": [
+            {
+                "field": "DateTime",
+                "title": "DateTime",
+                "width": "180",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Severity",
+                "title": "SEV",
+                "width": "80",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Name",
+                "title": "Name",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_code",
+                "title": "ErrorCode",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_Tekst",
+                "title": "Error",
+                "width": "300",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 890,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "30dd6f6b5a5ab20c",
+        "type": "ui_table",
+        "z": "112da8e87d63fd61",
+        "group": "ad9bb748e15eb808",
+        "name": "",
+        "order": 1,
+        "width": 12,
+        "height": 7,
+        "columns": [
+            {
+                "field": "DateTime",
+                "title": "DateTime",
+                "width": "180",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Severity",
+                "title": "SEV",
+                "width": "80",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Name",
+                "title": "Name",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_code",
+                "title": "ErrorCode",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_Tekst",
+                "title": "Error",
+                "width": "300",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 890,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "280c8812674f6feb",
+        "type": "ui_table",
+        "z": "112da8e87d63fd61",
+        "group": "db5098d0f55f4a8b",
+        "name": "",
+        "order": 1,
+        "width": 12,
+        "height": 7,
+        "columns": [
+            {
+                "field": "DateTime",
+                "title": "DateTime",
+                "width": "180",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Severity",
+                "title": "SEV",
+                "width": "80",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Name",
+                "title": "Name",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_code",
+                "title": "ErrorCode",
+                "width": "100",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            },
+            {
+                "field": "Error_Tekst",
+                "title": "Error",
+                "width": "300",
+                "align": "left",
+                "formatter": "plaintext",
+                "formatterParams": {
+                    "target": "_blank"
+                }
+            }
+        ],
+        "outputs": 0,
+        "cts": false,
+        "x": 890,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "96f7c88ed05795d4",
+        "type": "node-red-contrib-whatsapp-cmb-send-message",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "credtype": "account",
+        "account": "d040cd1f95281e8e",
+        "text": "message",
+        "phonenumbervalue": "",
+        "apikeyvalue": "",
+        "apikeyinputtypemessage": "msg",
+        "phonenumberinputtypemessage": "msg",
+        "inputtypemessage": "flow",
+        "rejectssl": false,
+        "x": 620,
+        "y": 360,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "42169597a9249939",
+        "type": "change",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "message",
+                "pt": "flow",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 370,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9616bd76e680f059",
+        "type": "e-mail",
+        "z": "112da8e87d63fd61",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "authtype": "BASIC",
+        "saslformat": true,
+        "token": "oauth2Response.access_token",
+        "secure": true,
+        "tls": true,
+        "name": "milozzy123@gmail.com",
+        "dname": "",
+        "x": 1090,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "786fbbd0b15562ee",
+        "type": "change",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "message",
+                "tot": "flow"
+            },
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "Error message",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 860,
+        "y": 360,
+        "wires": [
+            [
+                "9616bd76e680f059"
+            ]
+        ]
+    },
+    {
+        "id": "230bfeb133200587",
+        "type": "debug",
+        "z": "112da8e87d63fd61",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "45990f4633fda8dd",
+        "type": "debug",
+        "z": "112da8e87d63fd61",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "25e9e7ba60f98ff3",
+        "type": "link out",
+        "z": "112da8e87d63fd61",
+        "name": "link out 6",
+        "mode": "link",
+        "links": [
+            "dec45e3d36e84406"
+        ],
+        "x": 1105,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "dec45e3d36e84406",
+        "type": "link in",
+        "z": "112da8e87d63fd61",
+        "name": "link in 8",
+        "links": [
+            "25e9e7ba60f98ff3"
+        ],
+        "x": 355,
+        "y": 500,
+        "wires": [
+            [
+                "bed6a41001ff8bf3"
+            ]
+        ]
+    },
+    {
+        "id": "01ad91592c17dabb",
+        "type": "ui_button",
+        "z": "112da8e87d63fd61",
+        "name": "",
+        "group": "ede92d11ba7fa270",
+        "order": 2,
+        "width": 24,
+        "height": 1,
+        "passthru": false,
+        "label": "Clear database",
+        "tooltip": "",
+        "color": "black",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 100,
+        "y": 340,
+        "wires": [
+            [
+                "7e0ead41eca6f4c0"
+            ]
+        ]
+    },
+    {
+        "id": "267277de63c52da9",
+        "type": "mysql",
+        "z": "112da8e87d63fd61",
+        "mydb": "c3887b6b2ed387af",
+        "name": "",
+        "x": 420,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7e0ead41eca6f4c0",
+        "type": "function",
+        "z": "112da8e87d63fd61",
+        "name": "function 44",
+        "func": "// Format DELETE SQL Statement to remove all messages from the database\nvar DELETE_MSG = \"DELETE FROM Error_messages;\";\n\n// Node-SQL expects the SQL statement in msg.topic\nmsg.topic = DELETE_MSG;\n\n// Return the message object with the DELETE query\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 340,
+        "wires": [
+            [
+                "267277de63c52da9"
+            ]
+        ]
+    },
+    {
+        "id": "512b9c228fcbf010",
+        "type": "ui_template",
+        "z": "112da8e87d63fd61",
+        "group": "36e548a4497350a6",
+        "name": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\n    /* Target the group with id=\"Error_Handler_Sev_1\" */\n    #Cool_scherm_Severity_1 {\n        background-color: #0060ff !important;\n        /* Set your desired color */\n        border: 2px solid #000000 !important;\n        /* Optional: Add border */\n    }\n\n    /* Optionally, target any panels inside this group */\n    #Cool_scherm_Severity_1 .ui-panel {\n        color: white !important;\n        /* Set text color to white (optional) */\n    }\n    #Cool_scherm_Severity_2 {\n        background-color: #2eff00 !important;\n        /* Set your desired color */\n        border: 2px solid #000000 !important;\n        /* Optional: Add border */\n    }\n\n    /* Optionally, target any panels inside this group */\n    #Cool_scherm_Severity_2 .ui-panel {\n        color: white !important;\n        /* Set text color to white (optional) */\n    }\n    #Cool_scherm_Severity_3 {\n        background-color: #ff0400 !important;\n        /* Set your desired color */\n        border: 2px solid #000000 !important;\n        /* Optional: Add border */\n    }\n\n    /* Optionally, target any panels inside this group */\n    #Cool_scherm_Severity_3 .ui-panel {\n        color: white !important;\n        /* Set text color to white (optional) */\n    }\n    #Cool_scherm_Severity_4 {\n        background-color: #fffb00 !important;\n        /* Set your desired color */\n        border: 2px solid #000000 !important;\n        /* Optional: Add border */\n    }\n\n    /* Optionally, target any panels inside this group */\n    #Cool_scherm_Severity_4 .ui-panel {\n        color: white !important;\n        /* Set text color to white (optional) */\n    }\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "global",
+        "className": "sev1",
+        "x": 800,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d12f4ea78aca88e5",
+        "type": "mqtt-broker",
+        "name": "Error_Handler",
+        "broker": "192.168.0.147",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "ede92d11ba7fa270",
+        "type": "ui_group",
+        "name": "Knopje",
+        "tab": "e870717cd97f3454",
+        "order": 5,
+        "disp": false,
+        "width": 24,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "c3887b6b2ed387af",
+        "type": "MySQLdatabase",
+        "name": "Database",
+        "host": "192.168.0.147",
+        "port": "3306",
+        "db": "Error_Handler",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "2f74036aecb3f8b2",
+        "type": "ui_group",
+        "name": "Severity 1",
+        "tab": "e870717cd97f3454",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f5b93647af854b1b",
+        "type": "ui_group",
+        "name": "Severity 2",
+        "tab": "e870717cd97f3454",
+        "order": 2,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "ad9bb748e15eb808",
+        "type": "ui_group",
+        "name": "Severity 3",
+        "tab": "e870717cd97f3454",
+        "order": 3,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "db5098d0f55f4a8b",
+        "type": "ui_group",
+        "name": "Severity 4",
+        "tab": "e870717cd97f3454",
+        "order": 4,
+        "disp": true,
+        "width": 12,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "d040cd1f95281e8e",
+        "type": "node-red-contrib-whatsapp-cmb-account",
+        "name": "milo"
+    },
+    {
+        "id": "36e548a4497350a6",
+        "type": "ui_group",
+        "name": "Sev 1",
+        "tab": "7c6919255de72764",
+        "order": 1,
+        "disp": true,
+        "width": "20",
+        "collapse": false,
+        "className": "Sev 1"
+    },
+    {
+        "id": "e870717cd97f3454",
+        "type": "ui_tab",
+        "name": "Cool scherm",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "7c6919255de72764",
+        "type": "ui_tab",
+        "name": "Error Handler",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
