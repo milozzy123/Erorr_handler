@@ -1,11 +1,11 @@
 #! /bin/bash
 
 #Declare the variables
-HOST=192.168.1.23
-TOPIC=FD/ERROR
+HOST=192.168.0.147
+TOPIC=recieve
 SLEEP=1
 PROG_NAME=DUVEL
-SEV_CODE=1
+SEV_CODE=$((RANDOM % 4 + 1))
 
 ERROR_CODE_ARRAY1=(  "GEN0001" "GEN0002" "GEN0003" "GEN0004" "GEN0005"
                     "AUT1001" "AUT1002" "AUT1003" "AUT1004" "AUT1005"
@@ -33,7 +33,8 @@ echo "=================================================================="
 
 #Send the error messages of ARRAY 1
 for ERR_CODE in "${ERROR_CODE_ARRAY1[@]}"; do
-    ERR_MSG="$SEV_CODE;$PROG_NAME;$ERR_CODE"
+    SEV_CODE=$((RANDOM % 4 + 1))
+    ERR_MSG="<$SEV_CODE;$PROG_NAME;$ERR_CODE>"
     echo "Sending => $ERR_MSG"
     mosquitto_pub -h $HOST -t $TOPIC -m "$ERR_MSG"
     sleep $SLEEP
@@ -41,7 +42,8 @@ done
 
 #Send the error messages of ARRAY 2
 for i in {0..5}; do
-    ERR_MSG="$SEV_CODE;$PROG_NAME;${ERROR_CODE_ARRAY2[$i, 0]};${ERROR_CODE_ARRAY2[$i, 1]}"
+    SEV_CODE=$((RANDOM % 4 + 1))
+    ERR_MSG="<$SEV_CODE;$PROG_NAME;${ERROR_CODE_ARRAY2[$i, 0]};${ERROR_CODE_ARRAY2[$i, 1]}>"
     echo "Sending => $ERR_MSG"
     mosquitto_pub -h $HOST -t $TOPIC -m "$ERR_MSG"
     sleep $SLEEP
