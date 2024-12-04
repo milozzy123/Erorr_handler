@@ -7,12 +7,12 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define ADDRESS "tcp://192.168.0.147:1883"
+#define ADDRESS "tcp://192.168.0.105:1883"
 #define CLIENTID "RaspberryPiClient"
 #define SENDTOPIC "send"
 #define RECIEVETOPIC "recieve"
 #define QOS 1
-#define TIMEOUT 500L
+#define TIMEOUT 200L
 
 // Globale variabelen
 volatile int message_received = 0;
@@ -25,7 +25,7 @@ char ExtraFile[200];
 char send_msg[256];
 bool extrafile = false;
 
-// Gelinkte lijst voor foutcodes en teksten
+//Linked list aanmaken
 struct tbl
 {
     char Err_Code[100];
@@ -48,14 +48,14 @@ void find_code(char *Err_Code);
 void format_msg(char *received_message);
 void print_list();
 
-// Functie: Initialiseer de MQTT-client
+//Initialiseer de MQTT-client
 void initClient(MQTTClient *client)
 {
     MQTTClient_create(client, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
     MQTTClient_setCallbacks(*client, client, NULL, messageArrived, NULL);
 }
 
-// Functie: Verbind met de broker
+//Verbind met de broker
 int connectToBroker(MQTTClient *client, MQTTClient_connectOptions *conn_opts)
 {
     conn_opts->keepAliveInterval = 20;
@@ -73,7 +73,7 @@ int connectToBroker(MQTTClient *client, MQTTClient_connectOptions *conn_opts)
     return rc;
 }
 
-// Functie: Abonneer op een topic
+//Abonneer op een topic
 void subscribeToTopic(MQTTClient *client, const char *topic)
 {
     int rc = MQTTClient_subscribe(*client, topic, QOS);
@@ -85,7 +85,7 @@ void subscribeToTopic(MQTTClient *client, const char *topic)
     printf("Succesvol geabonneerd op topic: %s\n", topic);
 }
 
-// Functie: Format een bericht
+//Format een bericht
 void format_msg(char *received_message)
 {
     time_t t = time(NULL);
@@ -145,7 +145,7 @@ void format_msg(char *received_message)
     printf("%s\n", send_msg);
 }
 
-// Callback: Bericht ontvangen
+//Bericht ontvangen
 int messageArrived(void *context, char *topicName, int topicLen, MQTTClient_message *message)
 {
     pthread_mutex_lock(&lock);
@@ -181,7 +181,7 @@ int messageArrived(void *context, char *topicName, int topicLen, MQTTClient_mess
     return 1;
 }
 
-// Gelinkte lijst functies
+//Het eerste element in de linked list zetten
 void insert_first(char *Err_Code, char *Err_Tekst)
 {
     struct tbl *lk = (struct tbl *)malloc(sizeof(struct tbl));
@@ -190,7 +190,7 @@ void insert_first(char *Err_Code, char *Err_Tekst)
     lk->next = head;
     head = lk;
 }
-
+//De rest van de elementen in de linked list zetten
 void insert_next(struct tbl *list, char *Err_Code, char *Err_Tekst)
 {
     struct tbl *lk = (struct tbl *)malloc(sizeof(struct tbl));
@@ -199,7 +199,7 @@ void insert_next(struct tbl *list, char *Err_Code, char *Err_Tekst)
     lk->next = NULL;
     list->next = lk;
 }
-
+//Een element in de linked list zoeken
 int search_list(struct tbl **list, char *Err_Code)
 {
     struct tbl *temp = head;
@@ -214,7 +214,7 @@ int search_list(struct tbl **list, char *Err_Code)
     }
     return 0;
 }
-
+//Alle variabelen van het gezochte element uit de linked list halen
 void find_code(char *Err_Code)
 {
     if (search_list(&current, Err_Code) == 1)
@@ -226,7 +226,7 @@ void find_code(char *Err_Code)
         printf("Error code niet gevonden.\n");
     }
 }
-
+//De lijst printen
 void print_list()
 {
     struct tbl *temp = head;
@@ -238,24 +238,22 @@ void print_list()
     }
 }
 
-// Main-functie
 int main()
 {
-    printf("Choose your language: EN, NL, FR:\n");
-    char taal[5];
-    fgets(taal, sizeof(taal), stdin);
-    taal[strcspn(taal, "\n")] = 0;
+    printf("Choose your language: EN, NL, FR:\n");//Een bericht aan de gebruiker voor de taal
+    char *taal;
+    fgets(taal, sizeof(taal), stdin);//Zet de variebele gelijk met de input
+    taal[strcspn(taal, "\n")] = '\0';
+    char FileName[100];//Verwijder de nieuwe lijn die fgets toevoegt
+    snprintf(FileName, sizeof(FileName), "/home/milo/everything/Error_msg_%s.txt", taal);//Update de filenaam met de gekozen taal
 
-    char FileName[100];
-    snprintf(FileName, sizeof(FileName), "/home/milo/everything/Error_msg_%s.txt", taal);
-
-    FILE *fp = fopen(FileName, "r");
+    FILE *fp = fopen(FileName, "r");//Open de file
     if (fp == NULL)
     {
         printf("Fout: bestand %s kan niet worden geopend.\n", FileName);
         return 0;
     }
-
+    //Lees het hele bestand in
     char buffer[256];
     bool first = true;
     while (fgets(buffer, sizeof(buffer), fp))
@@ -268,28 +266,26 @@ int main()
 
         if (first)
         {
-            insert_first(Err_Code, Err_Tekst);
+            insert_first(Err_Code, Err_Tekst);//Zet het eerste element in de linked list
             current = head;
             first = false;
         }
         else
         {
-            insert_next(current, Err_Code, Err_Tekst);
+            insert_next(current, Err_Code, Err_Tekst);//Zet de elementen in de linked list
             current = current->next;
         }
     }
-
+    //Verbinding maken met de mqtt broker
     pthread_mutex_init(&lock, NULL);
     MQTTClient client;
     MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
-
     initClient(&client);
     if (connectToBroker(&client, &conn_opts) != MQTTCLIENT_SUCCESS)
     {
         return EXIT_FAILURE;
     }
     subscribeToTopic(&client, RECIEVETOPIC);
-
     printf("Wachten op berichten...\n");
     while (1)
     {
